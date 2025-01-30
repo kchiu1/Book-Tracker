@@ -7,27 +7,22 @@ struct AddBookScreen: View {
     @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
-        VStack {
-            TextField("Book Title", text: $title)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
+        NavigationView {
+            VStack {
+                TextField("Book Title", text: $title)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
 
-            Spacer()
-
-            Button("Add Book") {
+                Spacer()
+            }
+            .padding()
+            .navigationBarItems(trailing: Button("Save") {
                 let newBook = Book(title: title)
                 books.append(newBook)
                 presentationMode.wrappedValue.dismiss()
-            }
-            .font(.headline)
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-            .disabled(title.isEmpty)
+            }.disabled(title.isEmpty))
         }
-        .padding()
     }
 }

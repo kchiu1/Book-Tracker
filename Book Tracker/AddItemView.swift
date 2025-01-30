@@ -1,53 +1,42 @@
 import SwiftUI
 
+enum ItemType {
+    case character, event
+}
+
 struct AddItemView: View {
     @Binding var book: Book
+    var itemType: ItemType
     @State private var title: String = ""
-    @State private var description: String = ""
 
     @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
-        VStack {
-            TextField("Title", text: $title)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            TextField("Description", text: $description)
-                .font(.body)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            Spacer()
-
-            HStack {
-                Button("Cancel") {
-                    presentationMode.wrappedValue.dismiss()
-                }
-                .foregroundColor(.red)
+        NavigationView {
+            VStack {
+                TextField("Title", text: $title)
+                    .font(.largeTitle)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
 
                 Spacer()
-
-                Button(action: addItem) {
-                    Text("Add Item")
-                        .font(.headline)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-                .disabled(title.isEmpty)
             }
             .padding()
+            .navigationBarItems(trailing: Button("Save") {
+                addItem()
+            }.disabled(title.isEmpty))
         }
-        .padding()
     }
 
     private func addItem() {
-        let newItem = Item(title: title, description: description)
-        book.items.append(newItem)
+        switch itemType {
+        case .character:
+            let newCharacter = CharacterItem(title: title)
+            book.characters.append(newCharacter)
+        case .event:
+            let newEvent = EventItem(title: title)
+            book.events.append(newEvent)
+        }
         presentationMode.wrappedValue.dismiss()
     }
 }

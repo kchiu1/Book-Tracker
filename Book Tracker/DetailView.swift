@@ -1,11 +1,3 @@
-//
-//  DetailView.swift
-//  Book Tracker
-//
-//  Created by Kyle Chiu on 1/28/25.
-//
-
-
 import SwiftUI
 
 struct DetailView: View {
@@ -30,10 +22,9 @@ struct DetailView: View {
             Spacer()
         }
         .padding()
-        .onDisappear(perform: save)
+        .navigationBarItems(trailing: Button("Save") {
+            presentationMode.wrappedValue.dismiss()
+        })
     }
 
-    private func save() {
-        // Save logic can be implemented here if needed
-    }
 }

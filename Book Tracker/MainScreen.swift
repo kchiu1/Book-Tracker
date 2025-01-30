@@ -8,32 +8,16 @@ struct MainScreen: View {
         NavigationView {
             List {
                 ForEach($books) { $book in
-                    let bookBinding: Binding<Book> = Binding<Book>(
-                        get: { book },
-                        set: { newBook in
-                            if let index = books.firstIndex(where: { $0.id == book.id }) {
-                                books[index] = newBook
-                            }
-                        }
-                    )
-                    NavigationLink(destination: BookDetailsScreen(book: bookBinding)) {
+                    NavigationLink(destination: BookDetailsScreen(book: $book)) {
                         Text(book.title)
                     }
-                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            deleteBook(book)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
                 }
+                .onDelete(perform: deleteBook)
             }
             .navigationTitle("Books")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        isAddingBook = true
-                    }) {
+                    Button(action: { isAddingBook = true }) {
                         Image(systemName: "plus")
                     }
                 }
@@ -44,12 +28,10 @@ struct MainScreen: View {
         }
     }
 
-    private func deleteBook(_ book: Book) {
-            if let index = books.firstIndex(where: { $0.id == book.id }) {
-                books.remove(at: index)
-            }
-        }
+    private func deleteBook(at offsets: IndexSet) {
+        books.remove(atOffsets: offsets)
     }
+}
 
 struct MainScreen_Previews: PreviewProvider {
     static var previews: some View {

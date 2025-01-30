@@ -2,67 +2,87 @@ import SwiftUI
 
 struct BookDetailsScreen: View {
     @Binding var book: Book
-
-    @State private var showingAddItemScreen = false
+    @State private var selectedTab = 0
+    @State private var showingAddCharacter = false
+    @State private var showingAddEvent = false
 
     var body: some View {
-        List {
-            ForEach(groupedItems(), id: \.key) { key, items in
-                Section(header: Text(key)) {
-                    ForEach(items) { item in
-                        NavigationLink(destination: detailView(for: item)) {
-                            VStack(alignment: .leading) {
-                                Text(item.title)
-                                    .font(.headline)
-                                Text(item.description ?? "")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+        VStack {
+            TabView(selection: $selectedTab) {
+                CharacterListView(book: $book, showingAddCharacter: $showingAddCharacter)
+                    .tabItem {
+                        Label("Characters", systemImage: "person.3")
                     }
-                }
+                    .tag(0)
+
+                EventListView(book: $book, showingAddEvent: $showingAddEvent)
+                    .tabItem {
+                        Label("Events", systemImage: "calendar")
+                    }
+                    .tag(1)
             }
         }
         .navigationTitle(book.title)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: { showingAddItemScreen = true }) {
-                    Image(systemName: "plus")
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if selectedTab == 0 {
+                    Button(action: { showingAddCharacter = true }) {
+                        Image(systemName: "plus")
+                    }
+                } else {
+                    Button(action: { showingAddEvent = true }) {
+                        Image(systemName: "plus")
+                    }
                 }
             }
         }
-        .sheet(isPresented: $showingAddItemScreen) {
-            AddItemView(book: $book)
+        .sheet(isPresented: $showingAddCharacter) {
+            AddItemView(book: $book, itemType: .character)
+        }
+        .sheet(isPresented: $showingAddEvent) {
+            AddItemView(book: $book, itemType: .event)
         }
     }
+}
 
-    private func groupedItems() -> [String: [Item]] {
-        Dictionary(grouping: book.items, by: { item in
-            if item.title.contains("Character") {
-                return "Characters"
-            } else if item.title.contains("Event") {
-                return "Events"
-            } else {
-                return "Others"
+struct CharacterListView: View {
+    @Binding var book: Book
+    @Binding var showingAddCharacter: Bool
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading) {
+                ForEach(book.characters) { character in
+                    VStack(alignment: .leading) {
+                        Text(character.title)
+                            .font(.headline)
+                    }
+                    .padding(.bottom, 5)
+                }
             }
-        })
-    }
-
-    private func updateItem(_ item: Item, with newValue: String, for keyPath: WritableKeyPath<Item, String?>) {
-        if let index = book.items.firstIndex(where: { $0.id == item.id }) {
-            book.items[index][keyPath: keyPath] = newValue
+            .padding()
         }
+        .navigationTitle("Characters")
     }
+}
 
-    private func detailView(for item: Item) -> some View {
-        let titleBinding = Binding(
-            get: { item.title },
-            set: { newValue in updateItem(item, with: newValue, for: \.title) }
-        )
-        let descriptionBinding = Binding(
-            get: { item.description ?? "" },
-            set: { newValue in updateItem(item, with: newValue, for: \.description) }
-        )
-        return DetailView(title: titleBinding, description: descriptionBinding)
+struct EventListView: View {
+    @Binding var book: Book
+    @Binding var showingAddEvent: Bool
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading) {
+                ForEach(book.events) { event in
+                    VStack(alignment: .leading) {
+                        Text(event.title)
+                            .font(.headline)
+                    }
+                    .padding(.bottom, 5)
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Events")
     }
 }
