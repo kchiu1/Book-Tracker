@@ -7,12 +7,19 @@ struct MainScreen: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach($books) { $book in
-                    NavigationLink(destination: BookDetailsScreen(book: $book)) {
-                        Text(book.title)
+                if books.isEmpty {
+                    Text("No Books")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                } else {
+                    ForEach($books) { $book in
+                        NavigationLink(destination: BookDetailsScreen(book: $book)) {
+                            Text(book.title)
+                                .font(.body) // Unbolded
+                        }
                     }
+                    .onDelete(perform: deleteBook)
                 }
-                .onDelete(perform: deleteBook)
             }
             .navigationTitle("Books")
             .toolbar {
