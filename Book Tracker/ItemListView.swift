@@ -23,6 +23,5 @@ struct ItemListView: View {
                 }
             }
         }
-        // Removed the redundant navigation title
     }
 }

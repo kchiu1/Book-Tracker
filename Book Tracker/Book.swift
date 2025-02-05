@@ -1,14 +1,6 @@
-//
-//  Book.swift
-//  Book Tracker
-//
-//  Created by Kyle Chiu on 1/30/25.
-//
-
-
 import Foundation
 
-class Book: Identifiable, ObservableObject, Codable {
+class Book: Identifiable, ObservableObject, Codable, Equatable {
     var id = UUID()
     @Published var title: String
     @Published var items: [Item] // Single list for all items
@@ -34,5 +26,40 @@ class Book: Identifiable, ObservableObject, Codable {
         try container.encode(id, forKey: .id)
         try container.encode(title, forKey: .title)
         try container.encode(items, forKey: .items)
+    }
+
+    // Conform to Equatable
+    static func == (lhs: Book, rhs: Book) -> Bool {
+        return lhs.id == rhs.id &&
+               lhs.title == rhs.title &&
+               lhs.items == rhs.items
+    }
+
+    // Save books to a file
+    static func saveBooks(_ books: [Book]) {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let archiveURL = documentsDirectory.appendingPathComponent("books.json")
+
+        do {
+            let data = try JSONEncoder().encode(books)
+            try data.write(to: archiveURL)
+        } catch {
+            print("Error saving books: \(error)")
+        }
+    }
+
+    // Load books from a file
+    static func loadBooks() -> [Book] {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let archiveURL = documentsDirectory.appendingPathComponent("books.json")
+
+        do {
+            let data = try Data(contentsOf: archiveURL)
+            let books = try JSONDecoder().decode([Book].self, from: data)
+            return books
+        } catch {
+            print("Error loading books: \(error)")
+            return []
+        }
     }
 }

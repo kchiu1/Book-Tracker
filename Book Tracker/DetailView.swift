@@ -35,7 +35,6 @@ struct DetailView: View {
         .padding(.top, 16)
     }
 }
-
 // Preview
 struct DetailView_Previews: PreviewProvider {
     @State static var title = "Sample Title"

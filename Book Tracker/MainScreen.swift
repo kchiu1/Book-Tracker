@@ -32,6 +32,14 @@ struct MainScreen: View {
             .sheet(isPresented: $isAddingBook) {
                 AddBookScreen(books: $books)
             }
+            .onAppear {
+                // Load books when the view appears
+                books = Book.loadBooks()
+            }
+            .onChange(of: books) { _ in
+                // Save books whenever the array changes
+                Book.saveBooks(books)
+            }
         }
     }
 
@@ -39,7 +47,6 @@ struct MainScreen: View {
         books.remove(atOffsets: offsets)
     }
 }
-
 struct MainScreen_Previews: PreviewProvider {
     static var previews: some View {
         MainScreen()

@@ -1,6 +1,6 @@
 import Foundation
 
-class Item: Identifiable, ObservableObject, Codable {
+class Item: Identifiable, ObservableObject, Codable, Equatable {
     var id = UUID()
     @Published var title: String
     @Published var description: String?
@@ -30,5 +30,13 @@ class Item: Identifiable, ObservableObject, Codable {
         try container.encode(title, forKey: .title)
         try container.encode(description, forKey: .description)
         try container.encode(type, forKey: .type)
+    }
+
+    // Conform to Equatable
+    static func == (lhs: Item, rhs: Item) -> Bool {
+        return lhs.id == rhs.id &&
+               lhs.title == rhs.title &&
+               lhs.description == rhs.description &&
+               lhs.type == rhs.type
     }
 }
