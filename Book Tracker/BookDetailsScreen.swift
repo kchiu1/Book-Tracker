@@ -7,43 +7,35 @@ struct BookDetailsScreen: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Item List View (based on selected tab)
             switch selectedTab {
             case .character:
                 ItemListView(
                     items: Binding(
                         get: { book.items.filter { $0.type == .character } },
                         set: { newItems in
-                            // Update the items in the book
-                            for newItem in newItems {
-                                if let index = book.items.firstIndex(where: { $0.id == newItem.id }) {
-                                    book.items[index] = newItem
-                                }
-                            }
+                            book.items = book.items.filter { $0.type != .character } + newItems
+                            saveBook()
                         }
                     ),
                     showingAddItem: $showingAddItem,
-                    itemType: .character
+                    itemType: .character,
+                    onSave: saveBook
                 )
             case .event:
                 ItemListView(
                     items: Binding(
                         get: { book.items.filter { $0.type == .event } },
                         set: { newItems in
-                            // Update the items in the book
-                            for newItem in newItems {
-                                if let index = book.items.firstIndex(where: { $0.id == newItem.id }) {
-                                    book.items[index] = newItem
-                                }
-                            }
+                            book.items = book.items.filter { $0.type != .event } + newItems
+                            saveBook()
                         }
                     ),
                     showingAddItem: $showingAddItem,
-                    itemType: .event
+                    itemType: .event,
+                    onSave: saveBook
                 )
             }
 
-            // Custom Bottom Bar
             VStack(spacing: 0) {
                 HStack {
                     ForEach(ItemType.allCases) { itemType in
@@ -53,7 +45,7 @@ struct BookDetailsScreen: View {
                             VStack {
                                 Image(systemName: itemType.systemImage)
                                     .font(.system(size: 20))
-                                Text(itemType == .character ? "Characters" : "Events") // Simplified label
+                                Text(itemType == .character ? "Characters" : "Events")
                                     .font(.caption)
                             }
                             .foregroundColor(selectedTab == itemType ? .blue : .gray)
@@ -62,10 +54,10 @@ struct BookDetailsScreen: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .background(Color(.systemBackground)) // Use system background color
+                .background(Color(.systemBackground))
             }
         }
-        .navigationTitle(book.title) // Display the book name at the top
+        .navigationTitle(book.title)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingAddItem = true }) {
@@ -74,7 +66,11 @@ struct BookDetailsScreen: View {
             }
         }
         .sheet(isPresented: $showingAddItem) {
-            AddItemView(book: $book, itemType: selectedTab)
+            AddItemView(book: $book, itemType: selectedTab, onSave: saveBook)
         }
+    }
+
+    private func saveBook() {
+        Book.saveBooks([book])
     }
 }
