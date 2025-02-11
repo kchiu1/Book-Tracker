@@ -17,8 +17,20 @@ struct MainScreen: View {
                             Text(book.title)
                                 .font(.body) // Unbolded
                         }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                // Find the index of the book to delete
+                                if let index = books.firstIndex(where: { $0.id == book.id }) {
+                                    // Remove the book from the list
+                                    books.remove(at: index)
+                                    // Save the updated books array
+                                    Book.saveBooks(books)
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                     }
-                    .onDelete(perform: deleteBook)
                 }
             }
             .navigationTitle("Books")
@@ -41,10 +53,6 @@ struct MainScreen: View {
                 Book.saveBooks(books)
             }
         }
-    }
-
-    private func deleteBook(at offsets: IndexSet) {
-        books.remove(atOffsets: offsets)
     }
 }
 struct MainScreen_Previews: PreviewProvider {
