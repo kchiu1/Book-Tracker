@@ -7,6 +7,7 @@ struct ItemListView: View {
     var onSave: () -> Void // Callback to save the book
 
     @State private var isEmpty: Bool = false
+    @State private var showingImageManager = false
 
     var body: some View {
         List {
@@ -16,23 +17,35 @@ struct ItemListView: View {
                     .foregroundColor(.gray)
             } else {
                 ForEach(items) { item in
-                    NavigationLink(destination: DetailView(title: Binding(
-                        get: { item.title },
-                        set: { newTitle in
-                            if let index = items.firstIndex(where: { $0.id == item.id }) {
-                                items[index].title = newTitle
-                                onSave() // Save the book after editing the title
+                    NavigationLink(destination: DetailView(
+                        title: Binding(
+                            get: { item.title },
+                            set: { newTitle in
+                                if let index = items.firstIndex(where: { $0.id == item.id }) {
+                                    items[index].title = newTitle
+                                    onSave() // Save the book after editing the title
+                                }
                             }
-                        }
-                    ), description: Binding(
-                        get: { item.description ?? "" },
-                        set: { newDescription in
-                            if let index = items.firstIndex(where: { $0.id == item.id }) {
-                                items[index].description = newDescription
-                                onSave() // Save the book after editing the description
+                        ),
+                        description: Binding(
+                            get: { item.description ?? "" },
+                            set: { newDescription in
+                                if let index = items.firstIndex(where: { $0.id == item.id }) {
+                                    items[index].description = newDescription
+                                    onSave() // Save the book after editing the description
+                                }
                             }
-                        }
-                    ))) {
+                        ),
+                        images: Binding(
+                            get: { item.images },
+                            set: { newImages in
+                                if let index = items.firstIndex(where: { $0.id == item.id }) {
+                                    items[index].images = newImages
+                                    onSave() // Save the book after editing the images
+                                }
+                            }
+                        )
+                    )) {
                         Text(item.title)
                             .font(.body)
                     }
@@ -52,6 +65,9 @@ struct ItemListView: View {
         }
         .onChange(of: items) { newItems in
             isEmpty = newItems.isEmpty
+        }
+        .sheet(isPresented: $showingImageManager) {
+            ImageManagerView(images: $items.first?.images ?? .constant([]))
         }
     }
 }
