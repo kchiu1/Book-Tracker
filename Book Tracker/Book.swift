@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 class Book: Identifiable, ObservableObject, Codable, Equatable {
     var id = UUID()
