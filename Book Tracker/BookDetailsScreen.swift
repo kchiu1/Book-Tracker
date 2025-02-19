@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct BookDetailsScreen: View {
-    @Binding var book: Book
+    @ObservedObject var book: Book // Use @ObservedObject to observe the Book
+    var onSave: () -> Void // Callback to save the books array
+
     @State private var selectedTab: ItemType = .character
     @State private var showingAddItem = false
 
@@ -14,12 +16,12 @@ struct BookDetailsScreen: View {
                         get: { book.items.filter { $0.type == .character } },
                         set: { newItems in
                             book.items = book.items.filter { $0.type != .character } + newItems
-                            saveBook()
+                            onSave() // Save the books array after updating
                         }
                     ),
                     showingAddItem: $showingAddItem,
                     itemType: .character,
-                    onSave: saveBook
+                    onSave: onSave
                 )
             case .event:
                 ItemListView(
@@ -27,12 +29,12 @@ struct BookDetailsScreen: View {
                         get: { book.items.filter { $0.type == .event } },
                         set: { newItems in
                             book.items = book.items.filter { $0.type != .event } + newItems
-                            saveBook()
+                            onSave() // Save the books array after updating
                         }
                     ),
                     showingAddItem: $showingAddItem,
                     itemType: .event,
-                    onSave: saveBook
+                    onSave: onSave
                 )
             }
 
@@ -66,11 +68,7 @@ struct BookDetailsScreen: View {
             }
         }
         .sheet(isPresented: $showingAddItem) {
-            AddItemView(book: $book, itemType: selectedTab, onSave: saveBook)
+            AddItemView(book: book, itemType: selectedTab, onSave: onSave)
         }
-    }
-
-    private func saveBook() {
-        Book.saveBooks([book])
     }
 }

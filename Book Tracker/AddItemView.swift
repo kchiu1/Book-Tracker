@@ -1,10 +1,12 @@
 import SwiftUI
+
 struct AddItemView: View {
-    @Binding var book: Book
+    @ObservedObject var book: Book // Use @ObservedObject to observe the Book
     var itemType: ItemType
-    var onSave: () -> Void // Callback to save the book
+    var onSave: () -> Void // Callback to save the books array
 
     @State private var title: String = ""
+    @State private var isSaving: Bool = false // Track if saving is in progress
 
     @Environment(\.presentationMode) var presentationMode
 
@@ -25,12 +27,21 @@ struct AddItemView: View {
                     presentationMode.wrappedValue.dismiss()
                 },
                 trailing: Button("Save") {
-                    let newItem = Item(title: title, type: itemType)
-                    book.items.append(newItem)
-                    onSave() // Save the book after adding the item
+                    isSaving = true // Disable the button
+
+                    // Trim leading and trailing spaces
+                    let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                    // Only save if the trimmed title is not empty
+                    if !trimmedTitle.isEmpty {
+                        let newItem = Item(title: trimmedTitle, type: itemType)
+                        book.items.append(newItem)
+                        onSave() // Save the books array after adding the item
+                    }
+
                     presentationMode.wrappedValue.dismiss()
                 }
-                .disabled(title.isEmpty)
+                .disabled(title.isEmpty || isSaving) // Disable if title is empty or saving is in progress
             )
         }
     }
